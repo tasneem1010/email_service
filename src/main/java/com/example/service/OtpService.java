@@ -43,13 +43,6 @@ public class OtpService {
         return ApiResponse.buildResponse(HttpStatus.OK, true, "OTP is valid", null);
     }
 
-//    public ResponseEntity<ApiResponse<Object>> sendUserEmail(String email) {
-//        int otp = generateOtp(email);
-//        boolean sent = sendOtp(otp, email);
-//        return sent ? ApiResponse.buildResponse(HttpStatus.OK, true, "Email was sent", null)
-//                : ApiResponse.buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, false, "Email was not sent, check console for error", null);
-//    }
-
     public void clearOtp(String email) {
         map.remove(email);
     }
