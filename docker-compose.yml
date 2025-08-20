@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  email_service:
+#    build:
+#      context: ./email_service
+#      args:
+#        JAR_FILE: demo-0.0.1-SNAPSHOT.jar
+    image: taneem101/project:mail
+    container_name: emailservice
+    environment:
+      MYSQL_URL: jdbc:mysql://${MYSQL_SERVER_IP}:3306/${MYSQL_DATABASE}
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+    ports:
+      - "8080:8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

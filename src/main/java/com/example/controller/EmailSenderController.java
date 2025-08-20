@@ -17,7 +17,7 @@ public class EmailSenderController {
     private final OtpService otpService;
     private final UserService userService;
 
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity<ApiResponse<Object>> sendEmail(@RequestBody Map<String, String> emailMap) {
         String email = emailMap.get("email");
         return otpService.sentOtp(email);
