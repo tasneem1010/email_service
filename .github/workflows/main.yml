@@ -67,7 +67,7 @@ jobs:
           target: "~/deploy/"
           timeout: 30s
 
-      - name: Install docker-compose on server
+      - name: Install Docker and docker-compose on server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -76,9 +76,27 @@ jobs:
           port: 22
           timeout: 300s
           script: |
-           sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-           sudo chmod +x /usr/local/bin/docker-compose
-           docker-compose --version
+            # Install Docker if not already installed
+            if ! command -v docker &> /dev/null; then
+              echo "Installing Docker..."
+              sudo apt-get update
+              sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+              sudo apt-get update
+              sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -aG docker $USER
+            fi
+
+            # Install docker-compose
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+
+            # Verify installations
+            docker --version
+            docker-compose --version
 
       - name: SSH and deploy with docker-compose
         uses: appleboy/ssh-action@v1.0.3
@@ -88,8 +106,16 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           timeout: 300s
+          envs: MYSQL_SERVER_IP,MYSQL_DATABASE,MYSQL_ROOT_PASSWORD,MAIL_USERNAME,MAIL_PASSWORD
           script: |
             cd ~/deploy
+            # Set environment variables for docker-compose
+            export MYSQL_SERVER_IP="${MYSQL_SERVER_IP}"
+            export MYSQL_DATABASE="${MYSQL_DATABASE}"
+            export MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
+            export MAIL_USERNAME="${MAIL_USERNAME}"
+            export MAIL_PASSWORD="${MAIL_PASSWORD}"
+
             # Pull the mail image
             docker pull taneem101/project:mail
             # Stop and remove existing containers
@@ -107,6 +133,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           timeout: 180s
+          envs: MYSQL_SERVER_IP,MYSQL_DATABASE,MYSQL_ROOT_PASSWORD,MAIL_USERNAME,MAIL_PASSWORD
           script: |
             cd ~/deploy
 
