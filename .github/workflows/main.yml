@@ -64,7 +64,7 @@ jobs:
           target: "~/deploy/"
           timeout: 30s
 
-      - name: Install Docker and docker-compose on server
+      - name: Install Docker and Docker Compose on server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -75,25 +75,20 @@ jobs:
           script: |
             # Install Docker if not already installed
             if ! command -v docker &> /dev/null; then
-              echo "Installing Docker..."
-              sudo apt-get update
-              sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
-              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-              echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-              sudo apt-get update
-              sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+              echo "Installing Docker using convenience script..."
+              curl -fsSL https://get.docker.com -o get-docker.sh
+              sudo sh get-docker.sh
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -aG docker $USER
+              rm get-docker.sh
+              echo "Docker installed successfully"
+            else
+              echo "Docker is already installed"
             fi
 
-            # Install docker-compose
-            sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
-
-            # Verify installations
-            docker --version
-            docker-compose --version
+            # Verify Docker Compose is available (comes with Docker)
+            docker compose version
 
       - name: SSH and deploy with docker-compose
         uses: appleboy/ssh-action@v1.0.3
