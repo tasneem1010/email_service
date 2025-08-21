@@ -24,7 +24,7 @@ public class OtpService {
         return otpData.getOtp();
     }
 
-    public ResponseEntity<ApiResponse<Object>> validateOtp(String email, String otpString) {
+    public ResponseEntity<ApiResponse<Object>>  validateOtp(String email, String otpString) {
         int otp;
         try {
             otp = Integer.parseInt(otpString);

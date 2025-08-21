@@ -24,7 +24,10 @@ public class UserService {
         if (user == null) {
             return ApiResponse.buildResponse(HttpStatus.BAD_REQUEST, false, "User Does Not Exist", null);
         }
-        otpService.validateOtp(otp, email); // validate again to ensure security
+        ResponseEntity<ApiResponse<Object>> response = otpService.validateOtp(otp, email); // validate again to ensure security
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            return response;
+        }
         user.setPassword(encoder.encode(password));
         userRepository.save(user);
         otpService.clearOtp(email);
