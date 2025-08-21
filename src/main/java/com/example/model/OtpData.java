@@ -9,7 +9,6 @@ import java.time.Instant;
 public class OtpData {
     private final int otp;
     private final Instant expirationTime;
-    private boolean isVerified = false; // is set to true when validate method is called
     private static final int VALID_FOR = 30 * 60; // seconds
     // safer than random
     private final SecureRandom generator = new SecureRandom();
