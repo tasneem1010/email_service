@@ -18,7 +18,7 @@ RUN groupadd --system spring && useradd --system --gid spring spring
 USER spring:spring
 
 ARG JAR_FILE
-COPY build/libs/${JAR_FILE} app.jar
+COPY build/libs/*.jar app.jar
 
 ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Dspring.output.ansi.enabled=ALWAYS", "-Xlog:gc*:stdout:time", "-jar", "/app.jar", "--spring.profiles.active=prod", "--logging.level.root=INFO", "--logging.level.com.example=DEBUG"]
 
